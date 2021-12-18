@@ -1,0 +1,13 @@
+server:
+  port : 8081
+spring:
+  main:
+    banner-mode: "off"
+  kafka:
+    client-id: ${TPG_SPRING_APP_NAME}
+    bootstrap-servers: ${TPG_BOOTSTRAP_SERVERS}
+    properties:
+      ssl.endpoint.identification.algorithm: https
+      sasl.mechanism: ${TPG_SASL_MECHANISM}
+      sasl.jaas.config: ${TPG_SASL_JAAS_CONFIG}
+      security.protocol: ${TPG_SECURITY_PROTOCOL}

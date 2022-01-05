@@ -1,0 +1,20 @@
+server:
+  port : 8081
+spring:
+  main:
+    banner-mode: "off"
+  kafka:
+    client-id: konnecticator
+    bootstrap-servers: pkc-epwny.eastus.azure.confluent.cloud:9092
+    properties:
+      ssl.endpoint.identification.algorithm: https
+      sasl.mechanism: PLAIN
+      sasl.jaas.config: "org.apache.kafka.common.security.plain.PlainLoginModule   required username='AC7B6RWBS3KY3C37'   password='1+jcfx+prk3CVyw16ClIdvhLYlkMqWfTLqbvRT1fd3ir8Xqwmf4oPhgnMGBH/1S8';"
+      security.protocol: SASL_SSL
+    consumer.group-id: konnecticator-backend
+    streams:
+      application:
+        id: konnecticator-listener
+      properties:
+        commit:
+          interval: 0

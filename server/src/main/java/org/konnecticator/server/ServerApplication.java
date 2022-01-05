@@ -1,13 +1,13 @@
-package org.konnecticator.konnecticator;
+package org.konnecticator.server;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 @SpringBootApplication
-public class KonnecticatorApplication {
+public class ServerApplication {
 
 	public static void main(String[] args) {
-		SpringApplication.run(KonnecticatorApplication.class, args);
+		SpringApplication.run(ServerApplication.class, args);
 	}
 
 }

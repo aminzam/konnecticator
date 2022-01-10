@@ -8,11 +8,11 @@ spring:
     offsets-cluster-topic: "connect-jdbc-app-service-cluster-configs"
   kafka:
     client-id: konnecticator
-    bootstrap-servers: pkc-epwny.eastus.azure.confluent.cloud:9092
+    bootstrap-servers: ${BOOTSTRAP_SERVERS}
     properties:
       ssl.endpoint.identification.algorithm: https
       sasl.mechanism: PLAIN
-      sasl.jaas.config: "org.apache.kafka.common.security.plain.PlainLoginModule   required username='AC7B6RWBS3KY3C37'   password='1+jcfx+prk3CVyw16ClIdvhLYlkMqWfTLqbvRT1fd3ir8Xqwmf4oPhgnMGBH/1S8';"
+      sasl.jaas.config: ${SASL_JAAS_CONFIG}
       security.protocol: SASL_SSL
     consumer:
       group-id: konnecticator-server-consumer
@@ -27,3 +27,6 @@ spring:
             serde: org.apache.kafka.common.serialization.Serdes$StringSerde
           value:
             serde: org.apache.kafka.common.serialization.Serdes$StringSerde
+logging:
+  level:
+    root: INFO

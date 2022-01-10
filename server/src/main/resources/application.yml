@@ -6,6 +6,10 @@ spring:
   konnecticator:
     offsets-store-name: "offsets-store"
     offsets-cluster-topic: "connect-jdbc-app-service-cluster-configs"
+    configs-store-name: "configs-store"
+    configs-cluster-topic: "connect-jdbc-app-service-cluster-offsets"
+    status-store-name: "status-store"
+    status-cluster-topic: "connect-jdbc-app-service-cluster-status"
   kafka:
     client-id: konnecticator
     bootstrap-servers: ${BOOTSTRAP_SERVERS}

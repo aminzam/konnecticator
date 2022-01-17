@@ -8,13 +8,14 @@ public class ServerConfiguration {
     private String configsTopicName;
     private String statusStateStoreName;
     private String statusTopicName;
+    private String clusterRestEndPoint;
 
     public ServerConfiguration(String offsetsStateStoreName,
                                String offsetsTopicName,
                                String configsStateStoreName,
                                String configsTopicName,
                                String statusStateStoreName,
-                               String statusTopicName) {
+                               String statusTopicName, String clusterRestEndPoint) {
 
         this.offsetsStateStoreName = offsetsStateStoreName;
         this.offsetsTopicName = offsetsTopicName;
@@ -22,6 +23,7 @@ public class ServerConfiguration {
         this.configsTopicName = configsTopicName;
         this.statusStateStoreName = statusStateStoreName;
         this.statusTopicName = statusTopicName;
+        this.clusterRestEndPoint = clusterRestEndPoint;
     }
 
     public String getOffsetsStateStoreName() {
@@ -45,10 +47,17 @@ public class ServerConfiguration {
     }
 
     public String getStatusStateStoreName() {
+
         return statusStateStoreName;
     }
 
     public String getStatusTopicName() {
+
         return statusTopicName;
+    }
+
+    public String getClusterRestEndPoint() {
+
+        return clusterRestEndPoint;
     }
 }

@@ -24,6 +24,9 @@ public class ConfigurationProvider {
     @Value("${spring.konnecticator.status-cluster-topic}")
     private String statusClusterTopic;
 
+    @Value("${spring.konnecticator.connect-cluster-rest-endpoint}")
+    private String clusterRestEndPoint;
+
     public ServerConfiguration getServerConfiguration() {
 
         return new ServerConfiguration(
@@ -32,6 +35,7 @@ public class ConfigurationProvider {
                 configsStoreName,
                 configsClusterTopic,
                 statusStoreName,
-                statusClusterTopic);
+                statusClusterTopic,
+                clusterRestEndPoint);
     }
 }

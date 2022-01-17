@@ -10,6 +10,7 @@ spring:
     configs-cluster-topic: "connect-jdbc-app-service-cluster-offsets"
     status-store-name: "status-store"
     status-cluster-topic: "connect-jdbc-app-service-cluster-status"
+    connect-cluster-rest-endpoint: "https://app501-tpg-connector-dev.ceridian.com"
   kafka:
     client-id: konnecticator
     bootstrap-servers: ${BOOTSTRAP_SERVERS}

@@ -1,5 +1,7 @@
 package org.konnecticator.server;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.kafka.streams.KafkaStreams;
 import org.apache.kafka.streams.KeyValue;
 import org.apache.kafka.streams.StoreQueryParameters;
@@ -8,6 +10,7 @@ import org.apache.kafka.streams.state.ReadOnlyKeyValueStore;
 import org.konnecticator.server.config.ConfigurationProvider;
 import org.konnecticator.server.config.ServerConfiguration;
 import org.konnecticator.server.connect.RestClient;
+import org.konnecticator.server.connect.models.Status;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -37,8 +40,9 @@ public class WebController {
     RestClient restClient;
 
     @GetMapping("/offsets/")
-    public List<KeyValue<String, String>> getOffsetsStateStore() {
+    public List<Status> getOffsetsStateStore() {
 
+        //TODO: move all this shared code of reading and parsing json to separate file
         KafkaStreams kafkaStreams = factoryBean.getKafkaStreams();
         ReadOnlyKeyValueStore<String, String> store = kafkaStreams.store(
                 StoreQueryParameters.fromNameAndType(serverConfiguration.getOffsetsStateStoreName(), QueryableStoreTypes.keyValueStore())
@@ -47,7 +51,18 @@ public class WebController {
         List<KeyValue<String, String>> resultList = new ArrayList<>();
         store.all().forEachRemaining(resultList::add);
 
-        return resultList;
+        List<Status> statusResultList = new ArrayList<>();
+        ObjectMapper mapper = new ObjectMapper();
+
+        resultList.forEach(keyValue -> {
+            try {
+                statusResultList.add(mapper.readValue(keyValue.value, Status.class));
+            } catch (JsonProcessingException e) {
+                e.printStackTrace();
+            }
+        });
+
+        return statusResultList;
     }
 
     @GetMapping("/configs/")

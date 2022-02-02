@@ -5,24 +5,22 @@ import org.apache.kafka.streams.kstream.KTable;
 import org.apache.kafka.streams.kstream.Materialized;
 import org.konnecticator.server.config.ConfigurationProvider;
 import org.konnecticator.server.config.ServerConfiguration;
-import org.konnecticator.server.event.Dispatcher;
-import org.konnecticator.server.event.StreamNotificationTransformer;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.konnecticator.server.event.StreamNotificationTransformerSupplier;
+import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 @Configuration
 public class ConnectClusterStreams {
 
-    @Autowired
     private ConfigurationProvider configurationProvider;
+    private ApplicationContext context;
 
-    @Autowired
-    private Dispatcher dispatcher;
+    public ConnectClusterStreams(ConfigurationProvider configurationProvider, ApplicationContext context) {
 
-    private final Logger logger = LoggerFactory.getLogger(ServerApplication.class);
+        this.configurationProvider = configurationProvider;
+        this.context = context;
+    }
 
     @Bean
     public ServerConfiguration getServerConfiguration() {
@@ -31,7 +29,7 @@ public class ConnectClusterStreams {
     }
 
     @Bean
-    public KTable<Object, Object> buildOffsets(final StreamsBuilder builder, ServerConfiguration serverConfiguration) {
+    public KTable<String, String> buildOffsets(final StreamsBuilder builder, ServerConfiguration serverConfiguration) {
 
         return createKTable(builder,
                 serverConfiguration.getOffsetsTopicName(),
@@ -39,7 +37,7 @@ public class ConnectClusterStreams {
     }
 
     @Bean
-    public KTable<Object, Object> buildOConfigs(final StreamsBuilder builder, ServerConfiguration serverConfiguration) {
+    public KTable<String, String> buildOConfigs(final StreamsBuilder builder, ServerConfiguration serverConfiguration) {
 
         return createKTable(builder,
                 serverConfiguration.getConfigsTopicName(),
@@ -47,17 +45,18 @@ public class ConnectClusterStreams {
     }
 
     @Bean
-    public KTable<Object, Object> buildStatus(final StreamsBuilder builder, ServerConfiguration serverConfiguration) {
+    public KTable<String, String> buildStatus(final StreamsBuilder builder, ServerConfiguration serverConfiguration) {
 
         return createKTable(builder,
                 serverConfiguration.getStatusTopicName(),
                 serverConfiguration.getStatusStateStoreName());
     }
 
-    private KTable<Object, Object> createKTable(final StreamsBuilder builder, final String topicName, final String storeName) {
+    private KTable<String, String> createKTable(final StreamsBuilder builder, final String topicName, final String storeName) {
 
-        return builder.table(topicName)
-                .transformValues(() -> new StreamNotificationTransformer(),
-                        Materialized.as(storeName));
+        StreamNotificationTransformerSupplier supplier = this.context.getBean(StreamNotificationTransformerSupplier.class);
+        return builder
+            .<String, String>table(topicName)
+            .transformValues(supplier, Materialized.as(storeName));
     }
 }

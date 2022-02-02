@@ -3,8 +3,10 @@ package org.konnecticator.server.event;
 import org.apache.kafka.streams.kstream.ValueTransformerWithKey;
 import org.apache.kafka.streams.processor.ProcessorContext;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
-public class StreamNotificationTransformer implements ValueTransformerWithKey {
+@Component
+public class StreamNotificationTransformer implements ValueTransformerWithKey<String, String, String> {
 
     @Autowired
     Dispatcher dispatcher;
@@ -15,7 +17,7 @@ public class StreamNotificationTransformer implements ValueTransformerWithKey {
     }
 
     @Override
-    public Object transform(Object readOnlyKey, Object value) {
+    public String transform(String readOnlyKey, String value) {
 
         dispatcher.Notify(new Notification());
         return value;

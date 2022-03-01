@@ -31,7 +31,7 @@ public class ConnectClusterStreams {
     @Bean
     public KTable<String, String> buildOffsets(final StreamsBuilder builder, ServerConfiguration serverConfiguration) {
 
-        return createKTable(builder,
+        return createKTableWithNotifications(builder,
                 serverConfiguration.getOffsetsTopicName(),
                 serverConfiguration.getOffsetsStateStoreName());
     }
@@ -39,7 +39,7 @@ public class ConnectClusterStreams {
     @Bean
     public KTable<String, String> buildOConfigs(final StreamsBuilder builder, ServerConfiguration serverConfiguration) {
 
-        return createKTable(builder,
+        return createKTableWithNotifications(builder,
                 serverConfiguration.getConfigsTopicName(),
                 serverConfiguration.getConfigsStateStoreName());
     }
@@ -47,12 +47,12 @@ public class ConnectClusterStreams {
     @Bean
     public KTable<String, String> buildStatus(final StreamsBuilder builder, ServerConfiguration serverConfiguration) {
 
-        return createKTable(builder,
+        return createKTableWithNotifications(builder,
                 serverConfiguration.getStatusTopicName(),
                 serverConfiguration.getStatusStateStoreName());
     }
 
-    private KTable<String, String> createKTable(final StreamsBuilder builder, final String topicName, final String storeName) {
+    private KTable<String, String> createKTableWithNotifications(final StreamsBuilder builder, final String topicName, final String storeName) {
 
         StreamNotificationTransformerSupplier supplier = this.context.getBean(StreamNotificationTransformerSupplier.class);
         return builder

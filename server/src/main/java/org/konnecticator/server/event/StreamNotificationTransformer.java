@@ -19,7 +19,10 @@ public class StreamNotificationTransformer implements ValueTransformerWithKey<St
     @Override
     public String transform(String readOnlyKey, String value) {
 
-        dispatcher.Notify(new Notification());
+        var notification = new Notification();
+        notification.setKey(readOnlyKey);
+        notification.setValue(value);
+        dispatcher.Notify(notification);
         return value;
     }
 

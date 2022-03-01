@@ -31,3 +31,6 @@ build/
 
 ### VS Code ###
 .vscode/
+server/.env.dev
+server/Dockerfile
+*.cer

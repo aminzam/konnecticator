@@ -34,3 +34,4 @@ build/
 server/.env.dev
 server/Dockerfile
 *.cer
+server/Dockerfile

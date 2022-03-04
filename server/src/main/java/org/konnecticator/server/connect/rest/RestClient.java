@@ -1,4 +1,4 @@
-package org.konnecticator.server.connect;
+package org.konnecticator.server.connect.rest;
 
 import org.konnecticator.server.config.ConfigurationProvider;
 import org.konnecticator.server.config.ServerConfiguration;
@@ -7,6 +7,7 @@ import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
 
@@ -30,6 +31,19 @@ public class RestClient {
         HttpEntity<String> entity = GetBaseEntity();
 
         template.postForLocation(config.getClusterRestEndPoint() + "/connectors/{workerName}/tasks/{taskId}/restart", entity, workerName, taskId);
+    }
+
+    public String[] getConnectorNames() {
+
+        ServerConfiguration config = configurationProvider.getServerConfiguration();
+
+        RestTemplate template = restTemplateBuilder.build();
+
+        HttpEntity<String> entity = GetBaseEntity();
+
+        ResponseEntity<String[]> responseEntity = template.getForEntity(config.getClusterRestEndPoint() + "/connectors", String[].class);
+
+        return responseEntity.getBody();
     }
 
     private <T> HttpEntity<T> GetBaseEntity() {

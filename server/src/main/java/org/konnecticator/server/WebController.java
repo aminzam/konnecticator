@@ -6,22 +6,24 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.kafka.streams.KafkaStreams;
 import org.apache.kafka.streams.KeyValue;
 import org.apache.kafka.streams.StoreQueryParameters;
+import org.apache.kafka.streams.state.KeyValueIterator;
 import org.apache.kafka.streams.state.QueryableStoreTypes;
 import org.apache.kafka.streams.state.ReadOnlyKeyValueStore;
+import org.konnecticator.server.api.models.ConnectorSummary;
+import org.konnecticator.server.api.models.Task;
 import org.konnecticator.server.config.ConfigurationProvider;
 import org.konnecticator.server.config.ServerConfiguration;
 import org.konnecticator.server.connect.rest.RestClient;
 import org.konnecticator.server.connect.models.Status;
+import org.konnecticator.server.connect.rest.models.ConnectorExpanded;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.kafka.config.StreamsBuilderFactoryBean;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @RestController
 public class WebController {
@@ -41,70 +43,71 @@ public class WebController {
     RestClient restClient;
 
     @CrossOrigin(origins = "*", allowedHeaders = "*")
-    @GetMapping("/offsets/")
-    public HashMap<String, Status> getOffsetsStateStore() {
+    @GetMapping("/connectors/")
+    public List<ConnectorSummary> getConnectorSummaries() throws JsonProcessingException {
 
-        var activeConnectorNames = restClient.getConnectorNames();
+        Map<String, Status> statusStore = getStreamsStatusStateStore();
 
-        for(int i = 0; i < activeConnectorNames.length; i++)
-            logger.info(activeConnectorNames[i]);
+        Map<String, ConnectorExpanded> connectorExpandedMap = restClient.getConnectorsWithStatusAndInfo();
 
-        //TODO: move all this shared code of reading and parsing json to separate file
+        Iterator<String> connectorNames = connectorExpandedMap.keySet().iterator();
+        List<ConnectorSummary> result = new ArrayList<>();
+
+        while(connectorNames.hasNext()) {
+
+            String connectorName = connectorNames.next();
+
+            // Read values from rest API results to connector
+            ConnectorExpanded connectorExpanded = connectorExpandedMap.get(connectorName);
+            var summary = new ConnectorSummary();
+            summary.setName(connectorName);
+            summary.setState(connectorExpanded.getStatus().getConnector().getState());
+            summary.setType(connectorExpanded.getStatus().getType());
+            summary.setTimestampColumnName(connectorExpanded.getInfo().getConfig().getTimestampColumnName());
+            summary.setIncrementingColumnName(connectorExpanded.getInfo().getConfig().getIncrementingColumnName());
+            summary.setTasks(connectorExpanded.getStatus().getTasks().stream().map(taskStatus -> {
+                var task = new Task();
+                task.setId(taskStatus.getId().toString());
+                task.setState(taskStatus.getState());
+                return task;
+            }).collect(Collectors.toList()));
+
+            // Now append offset information from state store
+            if(statusStore.containsKey(connectorName)) {
+                var status = statusStore.get(connectorName);
+                if(status.getIncrementing() != null)
+                    summary.setIncrementingOffset(status.getIncrementing().toString());
+                if(status.getTimestamp() != null)
+                    summary.setTimestampOffset(status.getTimestamp().toString());
+            }
+            result.add(summary);
+        }
+
+        return result;
+    }
+
+    private Map<String, Status> getStreamsStatusStateStore() {
+
         KafkaStreams kafkaStreams = factoryBean.getKafkaStreams();
         ReadOnlyKeyValueStore<String, String> store = kafkaStreams.store(
                 StoreQueryParameters.fromNameAndType(serverConfiguration.getOffsetsStateStoreName(), QueryableStoreTypes.keyValueStore())
         );
-
-        List<KeyValue<String, String>> resultList = new ArrayList<>();
-        store.all().forEachRemaining(resultList::add);
-
-        HashMap<String, Status> statusResultList = new HashMap<>();
+        KeyValueIterator<String, String> allStoreElements = store.all();
+        Map<String, Status> statusStoreParsed = new HashMap<>();
         ObjectMapper mapper = new ObjectMapper();
+        while(allStoreElements.hasNext()) {
 
-        for (KeyValue<String, String> keyValue : resultList) {
+            KeyValue<String, String> storeElement = allStoreElements.next();
             try {
-                Object[] ok = mapper.readValue(keyValue.key, new TypeReference<>() {});
-                if (ok.length > 0 && ok[0] instanceof String)
-                    if (Arrays.stream(activeConnectorNames).anyMatch(s -> ok[0].equals(s)))
-                        statusResultList.put(ok[0].toString(), mapper.readValue(keyValue.value, Status.class));
+                Object[] ok = mapper.readValue(storeElement.key, new TypeReference<>() {});
+                if (ok.length > 0 && ok[0] instanceof String) {
+                    statusStoreParsed.put(ok[0].toString(), mapper.readValue(storeElement.value, Status.class));
+                }
             } catch (JsonProcessingException e) {
                 e.printStackTrace();
             }
         }
-
-        return statusResultList;
-    }
-
-    @GetMapping("/configs/")
-    public List<KeyValue<String, String>> getConfigsStateStore() {
-
-        ServerConfiguration config = configurationProvider.getServerConfiguration();
-
-        KafkaStreams kafkaStreams = factoryBean.getKafkaStreams();
-        ReadOnlyKeyValueStore<String, String> store = kafkaStreams.store(
-                StoreQueryParameters.fromNameAndType(config.getConfigsStateStoreName(), QueryableStoreTypes.keyValueStore())
-        );
-
-        List<KeyValue<String, String>> resultList = new ArrayList<>();
-        store.all().forEachRemaining(resultList::add);
-
-        return resultList;
-    }
-
-    @GetMapping("/status/")
-    public List<KeyValue<String, String>> getStatusStateStore() {
-
-        ServerConfiguration config = configurationProvider.getServerConfiguration();
-
-        KafkaStreams kafkaStreams = factoryBean.getKafkaStreams();
-        ReadOnlyKeyValueStore<String, String> store = kafkaStreams.store(
-                StoreQueryParameters.fromNameAndType(config.getStatusStateStoreName(), QueryableStoreTypes.keyValueStore())
-        );
-
-        List<KeyValue<String, String>> resultList = new ArrayList<>();
-        store.all().forEachRemaining(resultList::add);
-
-        return resultList;
+        return statusStoreParsed;
     }
 
     @PostMapping("/connector/restart/{name}")

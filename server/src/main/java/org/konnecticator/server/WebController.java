@@ -88,11 +88,19 @@ public class WebController {
 
     private Map<String, Status> getStreamsStatusStateStore() {
 
-        KafkaStreams kafkaStreams = factoryBean.getKafkaStreams();
-        ReadOnlyKeyValueStore<String, String> store = kafkaStreams.store(
-                StoreQueryParameters.fromNameAndType(serverConfiguration.getOffsetsStateStoreName(), QueryableStoreTypes.keyValueStore())
-        );
-        KeyValueIterator<String, String> allStoreElements = store.all();
+        KeyValueIterator<String, String> allStoreElements;
+        try {
+
+            KafkaStreams kafkaStreams = factoryBean.getKafkaStreams();
+            ReadOnlyKeyValueStore<String, String> store = kafkaStreams.store(
+                    StoreQueryParameters.fromNameAndType(serverConfiguration.getOffsetsStateStoreName(), QueryableStoreTypes.keyValueStore())
+            );
+            allStoreElements = store.all();
+        } catch(Exception ex) {
+
+            logger.error("Cannot get state store: {}", ex);
+            return new HashMap<>();
+        }
         Map<String, Status> statusStoreParsed = new HashMap<>();
         ObjectMapper mapper = new ObjectMapper();
         while(allStoreElements.hasNext()) {
@@ -118,4 +126,5 @@ public class WebController {
 
         return true;
     }
+
 }

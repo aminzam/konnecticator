@@ -5,11 +5,11 @@ spring:
     banner-mode: "off"
   konnecticator:
     offsets-store-name: "offsets-store"
-    offsets-cluster-topic: "connect-jdbc-app-service-cluster-configs"
+    offsets-cluster-topic: "dev.tpg.connect-jdbc-app-service-cluster-offsets"
     configs-store-name: "configs-store"
-    configs-cluster-topic: "connect-jdbc-app-service-cluster-offsets"
+    configs-cluster-topic: "dev.tpg.connect-jdbc-app-service-cluster-configs"
     status-store-name: "status-store"
-    status-cluster-topic: "connect-jdbc-app-service-cluster-status"
+    status-cluster-topic: "dev.tpg.connect-jdbc-app-service-cluster-status"
     connect-cluster-rest-endpoint: ${KONNECTICATOR_CLUSTER_ENDPOINT}
   kafka:
     client-id: konnecticator
@@ -22,7 +22,7 @@ spring:
     consumer:
       group-id: konnecticator-server-consumer
     streams:
-      application-id: konnecticator-server
+      application-id: konnecticator-server-local
       properties:
         commit:
           interval:

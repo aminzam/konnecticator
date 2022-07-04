@@ -17,7 +17,7 @@ public class StreamNotificationTransformerSupplier implements ValueTransformerWi
     @Override
     public ValueTransformerWithKey<String, String, String> get() {
 
-          return (ValueTransformerWithKey<String, String, String>) _context.getBean(StreamNotificationTransformer.class);
+          return _context.getBean(StreamNotificationTransformer.class);
     }
 
 }

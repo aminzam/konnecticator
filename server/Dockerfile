@@ -1,5 +1,5 @@
-#FROM openjdk:17
-#
+FROM openjdk:17
+
 #RUN microdnf install ca-certificates
 #ADD zscalerRoot.cer /etc/pki/ca-trust/source/anchors/zscalerRoot.cer
 #RUN update-ca-trust extract

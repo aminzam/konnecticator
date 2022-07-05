@@ -6,4 +6,4 @@ FROM curlimages/curl
 COPY add-datagen-connector.sh /usr/local/bin/script.sh
 COPY datagen_connector.config /etc/connector.config
 
-ENTRYPOINT ["/usr/local/bin/script.sh"]
+ENTRYPOINT ["sh", "/usr/local/bin/script.sh"]

@@ -1,7 +1,13 @@
 #!/bin/sh
 
 # When connect cluster container is up it takes a while for the REST API to go live
-until $(curl --head --fail http://connect:8083/); do
+while :
+do
+    curl --head --fail http://connect:8083/
+    RESULT=$?
+    if [ $RESULT -eq 0 ]; then
+        break
+    fi
     printf '...\n'
     sleep 3
 done

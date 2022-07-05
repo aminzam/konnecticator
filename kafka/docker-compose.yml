@@ -1,3 +1,7 @@
+# This file creates the minimal set of services required to run the demo app.
+# It starts a Kafka with a single broker, a zookeeper and one Kafka Connect cluster.
+# Once the Kafka Connect is up and running, it runs another container to create a datagen connector.
+# The datagen connector just creates random data. It is created by calling the REST endpoint for Connect.
 ---
 version: '2'
 services:

@@ -13,4 +13,4 @@ do
 done
 
 # Call the REST endpoint with provided config to create a new connector
-curl -X POST -H "Content-Type: application/json" --data /etc/connector.config http://connect:8083/connectors
+curl -X POST -H "Content-Type: application/json" --data "@/etc/connector.config" http://connect:8083/connectors

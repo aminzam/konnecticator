@@ -5,20 +5,20 @@ spring:
     banner-mode: "off"
   konnecticator:
     offsets-store-name: "offsets-store"
-    offsets-cluster-topic: "dev.tpg.connect-jdbc-app-service-cluster-offsets"
+    offsets-cluster-topic: ${KONNECTICATOR_OFFSETS_TOPIC}
     configs-store-name: "configs-store"
-    configs-cluster-topic: "dev.tpg.connect-jdbc-app-service-cluster-configs"
+    configs-cluster-topic: ${KONNECTICATOR_CONFIGS_TOPIC}
     status-store-name: "status-store"
-    status-cluster-topic: "dev.tpg.connect-jdbc-app-service-cluster-status"
+    status-cluster-topic: ${KONNECTICATOR_STATUS_TOPIC}
     connect-cluster-rest-endpoint: ${KONNECTICATOR_CLUSTER_ENDPOINT}
   kafka:
     client-id: konnecticator
     bootstrap-servers: ${BOOTSTRAP_SERVERS}
-    properties:
-      ssl.endpoint.identification.algorithm: https
-      sasl.mechanism: PLAIN
-      sasl.jaas.config: ${SASL_JAAS_CONFIG}
-      security.protocol: SASL_SSL
+    # properties:
+    #   ssl.endpoint.identification.algorithm: https
+    #   sasl.mechanism: PLAIN
+    #   sasl.jaas.config: ${SASL_JAAS_CONFIG}
+    #   security.protocol: SASL_SSL
     consumer:
       group-id: konnecticator-server-consumer
     streams:

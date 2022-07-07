@@ -44,7 +44,7 @@ function App() {
   function Example() {
     const { isLoading, error, data, isFetching } = useQuery("repoData", () =>
       axios.get(
-        "http://localhost:8081/connectors/"
+        "http://localhost:8088/connectors/"
       ).then((res) => res.data)
     );
 

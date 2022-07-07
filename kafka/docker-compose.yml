@@ -93,3 +93,27 @@ services:
     build:
       context: .
       dockerfile: add-datagen-connector.Dockerfile
+  konnecticator:
+    container_name: konnecticator
+    ports:
+      - "8088:8081"
+    depends_on:
+      - datagen
+    build:
+      context: ../server/
+      dockerfile: Dockerfile
+    environment:
+      - BOOTSTRAP_SERVERS=broker:29092
+      - KONNECTICATOR_CLUSTER_ENDPOINT=http://connect:8083
+      - KONNECTICATOR_OFFSETS_TOPIC=docker-connect-offsets
+      - KONNECTICATOR_CONFIGS_TOPIC=docker-connect-configs
+      - KONNECTICATOR_STATUS_TOPIC=docker-connect-status
+  konnecticator-client:
+    container_name: konnecticator-client
+    ports:
+      - "3000:3000"
+    depends_on:
+      - konnecticator
+    build:
+      context: ../client/
+      dockerfile: Dockerfile
